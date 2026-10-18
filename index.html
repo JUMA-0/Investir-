@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Girassol Invest - Plataforma de Investimentos</title>
+    <!-- Tailwind CSS para um visual atraente e moderno -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVEGAÇÃO -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-emerald-500 text-slate-950 p-2 rounded-lg font-bold text-xl"><i class="fa-solid fa-chart-line"></i></div>
+                <span class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Girassol Invest</span>
+            </div>
+            <div id="userInfoHeader" class="hidden flex items-center space-x-4">
+                <span class="text-sm bg-slate-800 px-3 py-1 rounded-full border border-slate-700"><i class="fa-solid fa-phone text-emerald-400 mr-2"></i><span id="displayPhone"></span></span>
+                <button onclick="logout()" class="text-rose-400 hover:text-rose-300 text-sm font-semibold"><i class="fa-solid fa-right-from-bracket mr-1"></i> Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow">
+
+        <!-- SEÇÃO 1: AUTENTICAÇÃO (LOGIN / REGISTRO) -->
+        <section id="authSection" class="max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl mt-12">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-white mb-2">Bem-vindo ao Girassol Invest</h1>
+                <p class="text-sm text-slate-400">Insira o seu número de telemóvel para entrar ou criar conta.</p>
+            </div>
+            <form onsubmit="handleAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Número de Telemóvel</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">+258</span>
+                        <input type="tel" id="phoneInput" placeholder="84 / 85 / 82 / 83..." required
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-16 pr-4 text-white focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-500/20">
+                    Acessar Plataforma
+                </button>
+            </form>
+            <div class="mt-6 text-center text-xs text-slate-500">
+                <p>Use o número <strong class="text-slate-300">840000000</strong> para entrar como <span class="text-emerald-400">Administrador</span>.</p>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 2: PAINEL DO USUÁRIO -->
+        <section id="userDashboard" class="hidden space-y-6">
+            <!-- Saldos & Resumo -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Saldo Principal</p>
+                    <h3 class="text-3xl font-extrabold text-white mt-1"><span id="userBalance">0.00</span> <span class="text-sm text-emerald-400">MT</span></h3>
+                    <div class="absolute right-4 top-4 bg-emerald-500/10 text-emerald-400 p-3 rounded-xl"><i class="fa-solid fa-wallet text-xl"></i></div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Total Investido Ativo</p>
+                    <h3 class="text-3xl font-extrabold text-white mt-1"><span id="userInvested">0.00</span> <span class="text-sm text-cyan-400">MT</span></h3>
+                    <div class="absolute right-4 top-4 bg-cyan-500/10 text-cyan-400 p-3 rounded-xl"><i class="fa-solid fa-chart-pie text-xl"></i></div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Bônus de Indicação</p>
+                    <h3 class="text-3xl font-extrabold text-white mt-1"><span id="userBonus">0.00</span> <span class="text-sm text-amber-400">MT</span></h3>
+                    <div class="absolute right-4 top-4 bg-amber-500/10 text-amber-400 p-3 rounded-xl"><i class="fa-solid fa-users text-xl"></i></div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas (Depositar & Indicar) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Depósito M-Pesa / E-Mola -->
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                    <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-money-bill-transfer text-emerald-400 mr-2"></i> Depositar Fundos</h2>
+                    <form onsubmit="handleDeposit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Operadora</label>
+                            <select id="depositOperator" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2.5 px-3 text-white focus:outline-none focus:border-emerald-500">
+                                <option value="M-Pesa">M-Pesa (Vodacom)</option>
+                                <option value="E-Mola">E-)</option>
+                            </select>
+                        </div>
+                        <div>
+                            NB: faça a transferência com este número da central 859533564  Nome JAIME JOSÉ SAIDE em seguida vá copiar cole no espaço abaixo 👇(ID de transferência, Valor)</label>
+                            <input type="number" id="depositAmount" placeholder="Ex: DJG6LYT12BS Valor 500" min="50" required
+                                class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2.5 px-3 text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-400">
+                            Faz  o seu depósito para: <strong class="text-white">859533564</strong> (Nome: Jaime Jose Saide) e insira o ID da transferência acima para validação automática/admin.
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition">
+                            Solicitar Depósito
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Indicação (Link de Afiliado 10%) -->
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold mb-2 flex items-center"><i class="fa-solid fa-share-nodes text-cyan-400 mr-2"></i> Programa de Convite (10%)</h2>
+                        <p class="text-sm text-slate-400 mb-4">Compartilhe o seu link com amigos. Ganhe <strong>10%</strong> do valor que eles investirem diretamente no seu saldo!</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-2">
+                          
+                            <input type="text" id="refLink" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2.5 px-3 text-slate-300 text-sm focus:outline-none">
+    <!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos de Investimento - MozInvest</title>
+    <!-- Tailwind CSS para estilização moderna -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen p-6 flex flex-col justify-center items-center">
+
+    <div class="max-w-7xl w-full mx-auto space-y-8">
+        
+        <!-- Título da Seção -->
+        <div class="text-center space-y-2">
+            <span class="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-chart-line mr-1"></i> Rentabilidade Garantida
+            </span>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white">Nossos Planos de Investimento</h1>
+            <p class="text-slate-400 text-sm max-w-xl mx-auto">Escolha o nível ideal para o seu perfil e maximize os seus ganhos com M-Pesa e E-Mola.</p>
+        </div>
+
+        <!-- TABELA DE PLANOS -->
+        <div class="overflow-x-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-950 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                    <tr>
+                        <th class="p-4 font-semibold">Nível / Plano</th>
+                        <th class="p-4 font-semibold">Investimento Mínimo</th>
+                        <th class="p-4 font-semibold">Duração</th>
+                        <th class="p-4 font-semibold">Taxa de Lucro</th>
+                        <th class="p-4 font-semibold">Lucro Estimado</th>
+                        <th class="p-4 font-semibold text-emerald-400">Total a Receber</th>
+                        <th class="p-4 font-semibold text-center">Ação</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-sm">
+                    
+                    <!-- Plano 1 -->
+                    <tr class="hover:bg-slate-850 transition">
+                        <td class="p-4 font-bold text-white flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span>Iniciante (Plano 1)</span>
+                        </td>
+                        <td class="p-4 font-semibold text-slate-200">500 MT</td>
+                        <td class="p-4 text-slate-400">7 dias</td>
+                        <td class="p-4 text-emerald-400 font-bold">+75%</td>
+                        <td class="p-4 text-slate-300">375.00 MT</td>
+                        <td class="p-4 font-extrabold text-emerald-400">875.00 MT</td>
+                        <td class="p-4 text-center">
+                            <button onclick="investir(500, 'Iniciante')" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20">
+                                Investir
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Plano 2 -->
+                    <tr class="hover:bg-slate-850 transition">
+                        <td class="p-4 font-bold text-white flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+                            <span>Intermediário (Plano 2)</span>
+                        </td>
+                        <td class="p-4 font-semibold text-slate-200">1.000 MT</td>
+                        <td class="p-4 text-slate-400">14 dias</td>
+                        <td class="p-4 text-cyan-400 font-bold">+85%</td>
+                        <td class="p-4 text-slate-300">850.00 MT</td>
+                        <td class="p-4 font-extrabold text-cyan-400">1.850.00 MT</td>
+                        <td class="p-4 text-center">
+                            <button onclick="investir(1000, 'Intermediário')" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-cyan-500/20">
+                                Investir
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Plano 3 -->
+                    <tr class="hover:bg-slate-850 transition">
+                        <td class="p-4 font-bold text-white flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span>Avançado (Plano 3)</span>
+                        </td>
+                        <td class="p-4 font-semibold text-slate-200">2.000 MT</td>
+                        <td class="p-4 text-slate-400">1 mês (30 dias)</td>
+                        <td class="p-4 text-amber-400 font-bold">+95%</td>
+                        <td class="p-4 text-slate-300">1.900.00 MT</td>
+                        <td class="p-4 font-extrabold text-amber-400">3.900.00 MT</td>
+                        <td class="p-4 text-center">
+                            <button onclick="investir(2000, 'Avançado')" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-amber-500/20">
+                                Investir
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Plano 4 -->
+                    <tr class="hover:bg-slate-850 transition">
+                        <td class="p-4 font-bold text-white flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            <span>VIP (Plano 4)</span>
+                        </td>
+                        <td class="p-4 font-semibold text-slate-200">3.500 MT</td>
+                        <td class="p-4 text-slate-400">45 dias</td>
+                        <td class="p-4 text-rose-400 font-bold">+105%</td>
+                        <td class="p-4 text-slate-300">3.675.00 MT</td>
+                        <td class="p-4 font-extrabold text-rose-400">7.175.00 MT</td>
+                        <td class="p-4 text-center">
+                            <button onclick="investir(3500, 'VIP')" class="bg-rose-600 hover:bg-rose-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-rose-500/20">
+                                Investir
+                            </button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function investir(valor, nomePlano) {
+            alert(`Você seleccionou o plano ${nomePlano} com o valor mínimo de ${valor} MT.`);
+        }
+    </script>
+</body>
+</html>
+
+          <button onclick="copyRefLink()" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold px-4 py-2.5 rounded-xl transition"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planos de Investimento por Níveis -->
+            <div>
+                <h2 class="text-xl font-bold mb-4 flex items-center"><i class="fa-solid fa-layer-group text-emerald-400 mr-2"></i> Planos de Investimento Disponíveis</h2>
+                <div id="investmentLevelsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 3: PAINEL DE ADMINISTRAÇÃO -->
+        <section id="adminDashboard" class="hidden space-y-6">
+            <div class="bg-rose-950/30 border border-rose-900/50 p-4 rounded-xl flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-rose-400"><i class="fa-solid fa-shield-halved mr-2"></i> Painel do Administrador</h2>
+                    <p class="text-xs text-slate-400">Gerencie depósitos pendentes e altere as regras de níveis e lucros da plataforma.</p>
+                </div>
+                <span class="bg-rose-500/20 text-rose-400 text-xs px-3 py-1 rounded-full font-semibold border border-rose-500/30">Admin Mode</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Gerenciar Depósitos Pendentes -->
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                    <h3 class="text-md font-bold mb-4 text-white">Aprovação de Depósitos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-950 text-slate-400 uppercase text-xs">
+                                <tr>
+                                    <th class="p-3">Usuário</th>
+                                    <th class="p-3">Valor</th>
+                                    <th class="p-3">Operadora</th>
+                                    <th class="p-3">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminDepositsList" class="divide-y divide-slate-800">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Configurar Níveis e Percentagens -->
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                    <h3 class="text-md font-bold mb-4 text-white">Editar Níveis e Lucros (%)</h3>
+                    <div id="adminLevelsForm" class="space-y-4">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-center py-4 text-xs text-slate-500 mt-12">
+        &copy; 2026 MozInvest. Todos os direitos reservados. Feito para M-Pesa & E-Mola.
+    </footer>
+
+    <!-- SCRIPT DE LOGICA DA PLATAFORMA -->
+    <script>
+        // ESTADO GLOBAL DA APLICAÇÃO (Salvo no localStorage)
+        let db = JSON.parse(localStorage.getItem('moz_invest_db')) || {
+            users: {},
+            deposits: [],
+            levels: [
+                { id: 1, name: "Nível Iniciante", min: 100, profitPercent: 5, durationDays: 7 },
+                { id: 2, name: "Nível Avançado", min: 1000, profitPercent: 12, durationDays: 14 },
+                { id: 3, name: "Nível VIP", min: 5000, profitPercent: 25, durationDays: 30 }
+            ]
+        };
+
+        let currentUserPhone = localStorage.getItem('moz_current_user') || null;
+
+        function saveDb() {
+            localStorage.setItem('moz_invest_db', JSON.stringify(db));
+        }
+
+        // INICIALIZAÇÃO
+        window.onload = function() {
+            if (currentUserPhone) {
+                if (currentUserPhone === '840000000') {
+                    showAdminDashboard();
+                } else {
+                    showUserDashboard();
+                }
+            }
+        };
+
+        // AUTENTICAÇÃO
+        function handleAuth(e) {
+            e.preventDefault();
+            let phone = document.getElementById('phoneInput').value.trim();
+            if(!phone) return;
+
+            currentUserPhone = phone;
+            localStorage.setItem('moz_current_user', phone);
+
+            // Criar usuário se não existir
+            if (!db.users[phone] && phone !== '840000000') {
+                db.users[phone] = {
+                    balance: 0,
+                    invested: 0,
+                    bonus: 0,
+                    referredBy: null
+                };
+                saveDb();
+            }
+
+            if (phone === '840000000') {
+                showAdminDashboard();
+            } else {
+                showUserDashboard();
+            }
+        }
+
+        function logout() {
+            currentUserPhone = null;
+            localStorage.removeItem('moz_current_user');
+            document.getElementById('userDashboard').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('userInfoHeader').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+        }
+
+        // PAINEL DO USUÁRIO
+        function showUserDashboard() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('userDashboard').classList.remove('hidden');
+            document.getElementById('userInfoHeader').classList.remove('hidden');
+            document.getElementById('displayPhone').innerText = '+258 ' + currentUserPhone;
+
+            let user = db.users[currentUserPhone];
+            document.getElementById('userBalance').innerText = user.balance.toFixed(2);
+            document.getElementById('userInvested').innerText = user.invested.toFixed(2);
+            document.getElementById('userBonus').innerText = user.bonus.toFixed(2);
+
+            // Link de indicação
+            let refUrl = window.location.origin + window.location.pathname + '?ref=' + currentUserPhone;
+            document.getElementById('refLink').value = refUrl;
+
+            renderInvestmentLevels();
+        }
+
+        function handleDeposit(e) {
+            e.preventDefault();
+            let operator = document.getElementById('depositOperator').value;
+            let amount = parseFloat(document.getElementById('depositAmount').value);
+
+            if (amount <= 0) return alert('Insira um valor válido');
+
+            db.deposits.push({
+                id: Date.now(),
+                phone: currentUserPhone,
+                operator: operator,
+                amount: amount,
+                status: 'Pendente'
+            });
+            saveDb();
+            alert('Solicitação de depósito enviada com sucesso! Aguarde a aprovação do administrador.');
+            document.getElementById('depositAmount').value = '';
+        }
+
+        function copyRefLink() {
+            let copyText = document.getElementById('refLink');
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value);
+            alert('Link de convite copiado!');
+        }
+
+        function renderInvestmentLevels() {
+            let container = document.getElementById('investmentLevelsContainer');
+            container.innerHTML = '';
+
+            db.levels.forEach(lvl => {
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between hover:border-emerald-500/50 transition">
+                        <div>
+                            <span class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-bold">Lucro: +${lvl.profitPercent}%</span>
+                            <h3 class="text-xl font-bold text-white mt-3">${lvl.name}</h3>
+                            <p class="text-xs text-slate-400 mt-1">Duração: ${lvl.durationDays} dias</p>
+                            <div class="my-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <span class="text-xs text-slate-500 block">Mínimo para investir</span>
+                                <span class="text-lg font-extrabold text-white">${lvl.min} MT</span>
+                            </div>
+                        </div>
+                        <button onclick="investInLevel(${lvl.min}, ${lvl.profitPercent})" class="w-full bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-white font-bold py-2.5 rounded-xl transition">
+                            Investir Agora
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function investInLevel(minAmount, profitPercent) {
+            let user = db.users[currentUserPhone];
+            if (user.balance < minAmount) {
+                alert('Saldo insuficiente! Faça um depósito primeiro.');
+                return;
+            }
+
+            user.balance -= minAmount;
+            let profit = minAmount * (profitPercent / 100);
+            user.invested += minAmount;
+            
+            // Simulação imediata de retorno após investimento (para fins práticos do app)
+            setTimeout(() => {
+                user.balance += minAmount + profit;
+                user.invested -= minAmount;
+                saveDb();
+                if (currentUserPhone) showUserDashboard();
+            }, 3000);
+
+            // Simular bônus de indicação se aplicável (10%)
+            // Se houvessse upline registrado, adicionaria 10% ao saldo de bônus do patrocinador.
+
+            saveDb();
+            showUserDashboard();
+            alert(`Investimento de ${minAmount} MT efetuado com sucesso! Lucro projetado de +${profit} MT.`);
+        }
+
+        // PAINEL ADMIN
+        function showAdminDashboard() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('userDashboard').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            document.getElementById('userInfoHeader').classList.remove('hidden');
+            document.getElementById('displayPhone').innerText = 'ADMINISTRADOR';
+
+            renderAdminDeposits();
+            renderAdminLevelsForm();
+        }
+
+        function renderAdminDeposits() {
+            let tbody = document.getElementById('adminDepositsList');
+            tbody.innerHTML = '';
+
+            if (db.deposits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Nenhum depósito pendente.</td></tr>`;
+                return;
+            }
+
+            db.deposits.forEach((dep, index) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-800">
+                        <td class="p-3">+258 ${dep.phone}</td>
+                        <td class="p-3 text-emerald-400 font-bold">${dep.amount} MT</td>
+                        <td class="p-3"><span class="bg-slate-800 px-2 py-0.5 rounded text-xs">${dep.operator}</span></td>
+                        <td class="p-3">
+                            ${dep.status === 'Pendente' ? `
+                                <button onclick="approveDeposit(${index})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded font-bold mr-1">Aprovar</button>
+                            ` : `<span class="text-emerald-500 text-xs font-bold">Aprovado</span>`}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function approveDeposit(index) {
+            let dep = db.deposits[index];
+            if (!db.users[dep.phone]) {
+                db.users[dep.phone] = { balance: 0, invested: 0, bonus: 0 };
+            }
+
+            db.users[dep.phone].balance += dep.amount;
+            dep.status = 'Aprovado';
+
+            // SISTEMA DE 10% DE CONVITE (Se o usuário foi indicado por alguém)
+            let invitedUser = db.users[dep.phone];
+            if (invitedUser.referredBy && db.users[invitedUser.referredBy]) {
+                let bonusAmount = dep.amount * 0.10;
+                db.users[invitedUser.referredBy].bonus += bonusAmount;
+            }
+
+            saveDb();
+            renderAdminDeposits();
+            alert('Depósito aprovado e saldo creditado ao usuário!');
+        }
+
+        function renderAdminLevelsForm() {
+            let formContainer = document.getElementById('adminLevelsForm');
+            formContainer.innerHTML = '';
+
+            db.levels.forEach((lvl, index) => {
+                formContainer.innerHTML += `
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-sm text-white">${lvl.name}</span>
+                            <span class="text-xs text-slate-500">ID: ${lvl.id}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Mínimo (MT)</label>
+                                <input type="number" id="lvlMin_${index}" value="${lvl.min}" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-1.5 px-2 text-white text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Lucro (%)</label>
+                                <input type="number" id="lvlProfit_${index}" value="${lvl.profitPercent}" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-1.5 px-2 text-white text-sm">
+                            </div>
+                        </div>
+                        <button onclick="updateLevel(${index})" class="w-full bg-slate-800 hover:bg-cyan-600 text-cyan-400 hover:text-slate-950 font-bold py-1.5 rounded-lg text-xs transition">Salvar Alterações</button>
+                    </div>
+                `;
+            });
+        }
+
+        function updateLevel(index) {
+            let newMin = parseFloat(document.getElementById(`lvlMin_${index}`).value);
+            let newProfit = parseFloat(document.getElementById(`lvlProfit_${index}`).value);
+
+            db.levels[index].min = newMin;
+            db.levels[index].profitPercent = newProfit;
+            saveDb();
+            alert('Nível atualizado com sucesso!');
+        }
+
+        // Verificar parâmetros de indicação na URL ao carregar
+        const urlParams = new URLSearchParams(window.location.search);
+        const refParam = urlParams.get('ref');
+        if (refParam) {
+            localStorage.setItem('moz_ref_sponsor', refParam);
+        }
+    </script>
+</body>
+</html>
